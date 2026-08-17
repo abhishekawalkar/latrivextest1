@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: latrivex-cli
+Version: 1.0.0
+Requires-Dist: typer[all]
+Requires-Dist: rich
+Requires-Dist: requests
+Dynamic: requires-dist

@@ -1,0 +1,2 @@
+[console_scripts]
+latrivex = latrivex_cli:app

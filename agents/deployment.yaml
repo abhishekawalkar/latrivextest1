@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: latrivex-atf-agent
+  namespace: production
+  labels:
+    app: latrivex-atf-agent
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: latrivex-atf-agent
+  template:
+    metadata:
+      labels:
+        app: latrivex-atf-agent
+    spec:
+      containers:
+      - name: atf-agent
+        image: <YOUR_CONTAINER_REGISTRY>/latrivex-agent-atf:v1.0.0
+        ports:
+        - containerPort: 5005
+        envFrom:
+        - secretRef:
+            name: latrivex-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /docs
+            port: 5005
+          initialDelaySeconds: 10
+          periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: latrivex-atf-service
+  namespace: production
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 5005
+  selector:
+    app: latrivex-atf-agent
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: latrivex-atf-ingress
+  namespace: production
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600" # Necessary for L11 SSE Telemetry Streaming
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - atf-agent.yourdomain.com
+    secretName: atf-agent-tls
+  rules:
+  - host: atf-agent.yourdomain.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: latrivex-atf-service
+            port:
+              number: 80

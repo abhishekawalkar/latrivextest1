@@ -1,0 +1,8 @@
+latrivex_cli.py
+setup.py
+latrivex_cli.egg-info/PKG-INFO
+latrivex_cli.egg-info/SOURCES.txt
+latrivex_cli.egg-info/dependency_links.txt
+latrivex_cli.egg-info/entry_points.txt
+latrivex_cli.egg-info/requires.txt
+latrivex_cli.egg-info/top_level.txt
